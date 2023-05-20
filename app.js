@@ -23,12 +23,7 @@ const { Message } = require('./models/messages');
 
 const app = express();
 const server = http.createServer(app)
-const io = require("socket.io")(server, {
-    cors: {
-        origin: "https://hamyarwellness.com",
-        methods: ["GET", "POST"],
-    }
-});
+
 
 
 
@@ -76,30 +71,6 @@ mongoose.connect(process.env.CONNECTION_STRING, { useNewUrlParser: true, useFind
     });
 mongoose.set('useCreateIndex', true);
 
-
-// Socket.io
-
-io.on('connection', socket => {
-    // socket.emit('message', "welcome to chetcord");
-    // socket.broadcast.emit('message', 'a user has joined the chat.');
-    socket.on("disconnect", () => {
-        // io.emit('message', 'a user has left the chat');
-    });
-    socket.on('chatMessage', msg => {
-        console.log(msg)
-        const message = new Message({
-            message: msg.message,
-            user: msg.user,
-            sender: msg.sender,
-        });
-        message.save().then(res => {
-            console.log(res)
-        }).catch(err => {
-            console.log(err)
-        });
-        io.emit('message', msg)
-    })
-});
 
 //Web-Push
 webpush.setVapidDetails(
