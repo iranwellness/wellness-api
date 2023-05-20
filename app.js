@@ -73,36 +73,36 @@ mongoose.set('useCreateIndex', true);
 
 
 //Web-Push
-webpush.setVapidDetails(
-    "mailto:test@test.com",
-    publicVapidKey,
-    privateVapidKey
-);
+// webpush.setVapidDetails(
+//     "mailto:test@test.com",
+//     publicVapidKey,
+//     privateVapidKey
+// );
 
-app.post(`${api}/subscribe`, (req, res) => {
-    // Get pushSubscription object
-    const subscription = req.body;
-    console.log(subscription);
-    console.log(subscription.minute);
-    console.log(subscription.hour);
-    console.log(JSON.parse(subscription.subscription));
-    // Send 201 - resource created
+// app.post(`${api}/subscribe`, (req, res) => {
+//     // Get pushSubscription object
+//     const subscription = req.body;
+//     console.log(subscription);
+//     console.log(subscription.minute);
+//     console.log(subscription.hour);
+//     console.log(JSON.parse(subscription.subscription));
+//     // Send 201 - resource created
 
 
-    // Create payload
-    const payload = JSON.stringify({ title: "یادآوری", payload: { body: subscription.body } });
+//     // Create payload
+//     const payload = JSON.stringify({ title: "یادآوری", payload: { body: subscription.body } });
 
-    // Pass object into sendNotification
+//     // Pass object into sendNotification
 
-    console.log('The answer to life, the universe, and everything!');
-    webpush
-        .sendNotification(JSON.parse(subscription.subscription), payload)
-        .catch(err => console.error(err));
-    var list = schedule.scheduledJobs;
-    console.log(list)
-    res.status(201).json({});
+//     console.log('The answer to life, the universe, and everything!');
+//     webpush
+//         .sendNotification(JSON.parse(subscription.subscription), payload)
+//         .catch(err => console.error(err));
+//     var list = schedule.scheduledJobs;
+//     console.log(list)
+//     res.status(201).json({});
 
-});
+// });
 
 
 app.use(`${api}/messages/:id`, (req, res) => {
