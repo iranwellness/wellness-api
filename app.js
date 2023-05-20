@@ -56,7 +56,7 @@ app.use(`${api}/quizzes`, quizRouter);
 app.use(`${api}/quiz/questions`, quizQuestionsRouter);
 app.use(`${api}/quiz/results`, quizresultsRouter);
 app.use(`${api}/test-results`, testResultsRouter);
-app.use(`${api}/notifs`, notifRouter);
+// app.use(`${api}/notifs`, notifRouter);
 app.use(`${api}/broadcast-messages`, broadcastMessages);
 app.use(`${api}/support-messages`, supportMessages);
 app.use(`${api}/orders`, orderRouter);
