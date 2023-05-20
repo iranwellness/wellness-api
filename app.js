@@ -31,8 +31,8 @@ const server = http.createServer(app)
 require('dotenv/config');
 process.env.TZ = "Asia/Tehran";
 const api = process.env.API_URL;
-const publicVapidKey = 'BPBc8omBrJ-NtB_XcIW0S_QS4pVe_dNVECdvRiDWH3DsIQF2CshhYYUgep2U9DWlu7Huns5dzkrlypdRIrIgp8Q';
-const privateVapidKey = process.env.PRIVATE_KEY;
+// const publicVapidKey = 'BPBc8omBrJ-NtB_XcIW0S_QS4pVe_dNVECdvRiDWH3DsIQF2CshhYYUgep2U9DWlu7Huns5dzkrlypdRIrIgp8Q';
+// const privateVapidKey = process.env.PRIVATE_KEY;
 
 
 app.use(cors());
