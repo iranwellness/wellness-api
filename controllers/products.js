@@ -1,14 +1,47 @@
 const { Product } = require('../models/products');
 const { CartProduct } = require('../models/cart');
 
+const AWS = require("aws-sdk");
+const s3 = new AWS.S3()
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+
+
 exports.getAllProducts = (req, res) => {
-    
+    Product.find().lean().then(productList => {
+        if (productList.length > 0) {
+            productList.forEach((product, index) => {
+                const signedUrlExpireSeconds = 60 * 5
+                const data = s3.getSignedUrl('getObject', {
+                    Bucket: "cyclic-tame-rose-clownfish-ring-us-west-1",
+                    Key: product.image,
+                    Expires: signedUrlExpireSeconds
+                });
+                console.log(productList[index]);
+                productList[index]['image'] = data;
+
+            });
+            res.status(200).json({ success: true, data: productList });
+        } else {
+            res.status(404).json({ success: false, message: 'No Content' });
+        }
+    }).catch(err => {
+        res.status(500).json({ success: false, message: err })
+    });
 };
 
-exports.createProduct = (req, res) => {
+exports.createProduct = async (req, res) => {
+    console.log(req.file);
+    const imageName = Date.now() + req.file.originalname;
+    await s3.putObject({
+        Body: req.file.buffer,
+        Bucket: "cyclic-tame-rose-clownfish-ring-us-west-1",
+        Key: imageName,
+    }).promise()
+
+
     const product = new Product({
         name: req.body.name,
-        image: req.file.path,
+        image: imageName,
         description: req.file.description,
         richDescription: req.file.richDescription,
         countInStock: req.body.countInStock,
@@ -28,11 +61,20 @@ exports.createProduct = (req, res) => {
 };
 
 exports.getAProduct = (req, res) => {
-    Product.find({ _id: req.params.id }).then(productList => {
+    Product.find({ _id: req.params.id }).lean().then(productList => {
         console.log(productList)
         if (productList.length < 1) {
             res.status(404).json({ success: false, message: 'No Content' });
         } else {
+            const signedUrlExpireSeconds = 60 * 5
+                const data = s3.getSignedUrl('getObject', {
+                    Bucket: "cyclic-tame-rose-clownfish-ring-us-west-1",
+                    Key: product.image,
+                    Expires: signedUrlExpireSeconds
+                });
+                console.log(productList[index]);
+                productList[index]['image'] = data;
+
             res.status(200).json({ success: true, data: productList[0] });
         }
     }).catch(err => {
@@ -43,10 +85,18 @@ exports.getAProduct = (req, res) => {
 exports.searchProducts = (req, res) => {
     console.log(req.query)
     Product.find(req.query).lean().then(productList => {
-        console.log(productList)
         if (productList.length < 1) {
             res.status(404).json({ success: false, message: 'No Content' });
         } else {
+            const signedUrlExpireSeconds = 60 * 5
+                const data = s3.getSignedUrl('getObject', {
+                    Bucket: "cyclic-tame-rose-clownfish-ring-us-west-1",
+                    Key: product.image,
+                    Expires: signedUrlExpireSeconds
+                });
+                console.log(productList[index]);
+                productList[index]['image'] = data;
+
             res.status(200).json({ success: true, data: productList });
         }
     })
