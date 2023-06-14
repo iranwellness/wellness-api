@@ -5,12 +5,7 @@ const checkAuth = require('../middleware/chcek-auth');
 const multer = require('multer');
 const fs = require('fs');
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        fs.mkdir('./uploads/quizzes', (err) => {
-            cb(null, './uploads/quizzes');
-        });
-    },
+const storage = multer.memoryStorage({
     filename: function (req, file, cb) {
         const extension = file.mimetype === 'audio/mpeg' ? "mp3" : "png";
         cb(null, Date.now() + `.${extension}`);
@@ -18,7 +13,7 @@ const storage = multer.diskStorage({
 });
 
 const fileFilter = (req, file, cb) => {
-    if (file.mimetype === 'audio/mpeg' || file.mimetype === 'image/png') {
+    if (file.mimetype === 'audio/mpeg' || file.mimetype === 'image/png' || file.mimetype === 'image/jpeg' || file) {
         cb(null, true);
     } else {
         cb(null, false);
