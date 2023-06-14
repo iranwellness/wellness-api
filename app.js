@@ -9,6 +9,7 @@ const cors = require('cors');
 const productsRouter = require('./routes/products');
 const categoryRouter = require('./routes/categories');
 const userRouter = require('./routes/users');
+const messagesRouter = require('./routes/messages');
 const appointmentRouter = require('./routes/appointment');
 const ticketRouter = require('./routes/tickets');
 const quizRouter = require('./routes/quizzes');
@@ -60,6 +61,7 @@ app.use(`${api}/test-results`, testResultsRouter);
 app.use(`${api}/broadcast-messages`, broadcastMessages);
 app.use(`${api}/support-messages`, supportMessages);
 app.use(`${api}/orders`, orderRouter);
+app.use(`${api}/messages`, messagesRouter);
 
 //Database Connection
 mongoose.connect(process.env.CONNECTION_STRING, { useNewUrlParser: true, useFindAndModify: false, useUnifiedTopology: true })
