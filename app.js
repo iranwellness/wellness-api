@@ -3,8 +3,8 @@ const morgan = require('morgan')
 const http = require('http');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const webpush = require('web-push');
-const schedule = require('node-schedule');
+// const webpush = require('web-push');
+// const schedule = require('node-schedule');
 
 const productsRouter = require('./routes/products');
 const categoryRouter = require('./routes/categories');
@@ -15,7 +15,7 @@ const quizRouter = require('./routes/quizzes');
 const quizQuestionsRouter = require('./routes/quizQuestions');
 const quizresultsRouter = require('./routes/quizResults');
 const testResultsRouter = require('./routes/testResults');
-const notifRouter = require('./routes/notif');
+// const notifRouter = require('./routes/notif');
 const orderRouter = require('./routes/orders');
 const broadcastMessages = require('./routes/broadcastMessages');
 const supportMessages = require('./routes/supportMessages');
@@ -105,33 +105,34 @@ mongoose.set('useCreateIndex', true);
 // });
 
 
-app.use(`${api}/messages/:id`, (req, res) => {
-    Message.find({ user: req.params.id }).populate("user sender").exec()
-        .then(result => {
-            if (result.length >= 1) {
-                res.status(200).json({ success: true, data: result });
-            } else {
-                res.status(404).json({ success: false, message: "No content" });
-            }
-        })
-        .catch(err => {
-            res.status(404).json({ success: false, message: "Error getting the messages" });
-        });
-});
+// app.use(`${api}/messages/:id`, (req, res) => {
+//     Message.find({ user: req.params.id }).populate("user sender").exec()
+//         .then(result => {
+//             if (result.length >= 1) {
+//                 res.status(200).json({ success: true, data: result });
+//             } else {
+//                 res.status(404).json({ success: false, message: "No content" });
+//             }
+//         })
+//         .catch(err => {
+//             res.status(404).json({ success: false, message: "Error getting the messages" });
+//         });
+// });
 
-app.use(`${api}/messages/`, (req, res) => {
-    Message.find().populate("user sender").exec()
-        .then(result => {
-            if (result.length >= 1) {
-                res.status(200).json({ success: true, data: result });
-            } else {
-                res.status(404).json({ success: false, message: "No content" });
-            }
-        })
-        .catch(err => {
-            res.status(404).json({ success: false, message: "Error getting the messages" });
-        });
-});
+// app.use(`${api}/messages/`, (req, res) => {
+//     Message.find().populate("user sender").exec()
+//         .then(result => {
+//             if (result.length >= 1) {
+//                 res.status(200).json({ success: true, data: result });
+//             } else {
+//                 res.status(404).json({ success: false, message: "No content" });
+//             }
+//         })
+//         .catch(err => {
+//             res.status(404).json({ success: false, message: "Error getting the messages" });
+//         });
+// });
+
 
 //Server    
 server.listen(4000, () => {
