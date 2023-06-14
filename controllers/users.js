@@ -6,8 +6,27 @@ var Kavenegar = require('kavenegar');
 const sms = Kavenegar.KavenegarApi({ apikey: '75676D4E386278447765682F39417544755151306949735552684D397863587974634731777433685347553D' });
 const Ghasedak = require("ghasedak");
 
+const AWS = require("aws-sdk");
+const s3 = new AWS.S3()
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+
 // let sms = new Ghasedak("7f3529b3e37113c426541a10618a6b6e7483b9fd06345988b927765d4bddb0c3");
 // let sms = new Ghasedak(process.env.API_URL);
+
+async function getURL(items){
+    for(let item of items){
+        // console.log(item)
+        if (item.image) {
+            const signedUrlExpireSeconds = 60 * 5
+             const data = s3.getSignedUrl('getObject', {
+                Bucket: "cyclic-tame-rose-clownfish-ring-us-west-1",
+                Key: item.image,
+                Expires: signedUrlExpireSeconds
+            });
+            item.image = data;
+        }
+    };
+  }
 
 exports.signup = (req, res) => {
     User.find({ phone: req.body.phone }).exec().then(user => {
@@ -55,13 +74,15 @@ exports.signup = (req, res) => {
 };
 
 exports.getAllUsers = (req, res) => {
-    User.find().then(userList => {
+    User.find().then(async (userList) => {
         if (userList.length < 1) {
             res.status(204).json({ success: false, message: 'No Content' });
         } else {
+            await getURL(userList);
             res.status(200).json({ success: true, data: userList });
         }
-    }).catch(err => {
+    })
+    .catch(err => {
         res.status(500).json({ success: false, message: err })
     });
 };
@@ -73,6 +94,7 @@ exports.search = (req, res) => {
         if (userList.length < 1) {
             res.status(404).json({ success: false, message: 'No Content' });
         } else {
+            getURL(userList);
             res.status(200).json({ success: true, data: userList });
         }
     }).catch(err => {
@@ -214,6 +236,15 @@ exports.getMyProfile = (req, res) => {
     User.findById(req.userData.userId)
         .exec()
         .then(result => {
+            if (result.image) {
+                const signedUrlExpireSeconds = 60 * 5
+                 const data = s3.getSignedUrl('getObject', {
+                    Bucket: "cyclic-tame-rose-clownfish-ring-us-west-1",
+                    Key: result.image,
+                    Expires: signedUrlExpireSeconds
+                });
+                result.image = data;
+            }
             res.status(200).json({ success: true, data: result });
         })
         .catch(err => {
@@ -221,7 +252,8 @@ exports.getMyProfile = (req, res) => {
         })
 };
 
-exports.updateMyProfile = (req, res) => {
+exports.updateMyProfile = async (req, res) => {
+
     const updateOps = {};
     console.log(req.file);
     for (const [objKey, value] of Object.entries(req.body)) {
@@ -230,8 +262,13 @@ exports.updateMyProfile = (req, res) => {
         }
     }
     if (req.file) {
-        updateOps["image"] = req.file.path
-        console.log(req.file.path)
+        const filename = Date.now() + req.file.originalname;
+        await s3.putObject({
+            Body: req.file.buffer,
+            Bucket: "cyclic-tame-rose-clownfish-ring-us-west-1",
+            Key: filename,
+        }).promise()
+        updateOps["image"] = filename
     }
     User.findByIdAndUpdate({ _id: req.userData.userId }, { $set: updateOps }, { new: true })
         .exec()
