@@ -1,21 +1,31 @@
 const { TestResult } = require('../models/testResults');
+const AWS = require("aws-sdk");
+const s3 = new AWS.S3()
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 
-exports.createTestResult = (req, res) => {
+
+exports.createTestResult = async (req, res) => {
     console.log(req.file)
+    const filename = Date.now() + req.file.originalname;
+    await s3.putObject({
+        Body: req.file.buffer,
+        Bucket: "cyclic-tame-rose-clownfish-ring-us-west-1",
+        Key: filename,
+    }).promise()
     const testResult = new TestResult({
         customer: req.body.customer,
         uploader: req.body.uploader,
         testType: req.body.testType,
-        resultFile: req.file.path,
+        resultFile: filename,
     });
     testResult
         .save()
         .then(result => {
             res.status(200).json({ success: true, data: result })
         })
-        // .catch(err => {
-        //     res.status(500).json({ success: false, error: err })
-        // })
+        .catch(err => {
+            res.status(500).json({ success: false, error: err })
+        })
 };
 
 exports.getAllResults = (req, res) => {
@@ -28,12 +38,22 @@ exports.getAllResults = (req, res) => {
             if (result.length === 0) {
                 res.status(404).json({ status: false, message: "No content" });
             } else {
+                result.forEach(item => {
+                    const signedUrlExpireSeconds = 60 * 5
+                    const data = s3.getSignedUrl('getObject', {
+                        Bucket: "cyclic-tame-rose-clownfish-ring-us-west-1",
+                        Key: item.resultFile,
+                        Expires: signedUrlExpireSeconds
+                    });
+                    item.resultFile = data;
+                });
                 res.status(200).json({ status: true, data: result });
             }
         })
 };
 
 exports.getOneResults = (req, res) => {
+    console.log("check");
     TestResult
         .find({ customer: req.userData.userId })
         .select('-__v')
@@ -43,6 +63,15 @@ exports.getOneResults = (req, res) => {
             if (result.length === 0) {
                 res.status(404).json({ status: false, message: "No content" });
             } else {
+                result.forEach(item => {
+                    const signedUrlExpireSeconds = 60 * 5
+                    const data = s3.getSignedUrl('getObject', {
+                        Bucket: "cyclic-tame-rose-clownfish-ring-us-west-1",
+                        Key: item.resultFile,
+                        Expires: signedUrlExpireSeconds
+                    });
+                    item.resultFile = data;
+                });
                 res.status(200).json({ status: true, data: result });
             }
         })
@@ -64,11 +93,18 @@ exports.deleteResult = (req, res) => {
         });
 };
 
-exports.updateResult = (req, res) => {
+exports.updateResult = async (req, res) => {
+    console.log(req.file)
+    const filename = Date.now() + req.file.originalname;
+    await s3.putObject({
+        Body: req.file.buffer,
+        Bucket: "cyclic-tame-rose-clownfish-ring-us-west-1",
+        Key: filename,
+    }).promise()
     const updateOps = {
         customer: req.body.customer,
         uploader: req.body.uploader,
-        resultFile: req.file.path
+        resultFile: filename
     };
     TestResult.findByIdAndUpdate({ _id: req.params.id }, { $set: updateOps }, { new: true })
         .exec()
